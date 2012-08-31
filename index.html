@@ -1,12 +1,15 @@
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-
-<script>
+<html>
+<head>
+    <title></title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
   var server = io.connect('http://localhost');
   var name;
   server.on('connect', function(data){
     name = prompt("What's your name?");
     server.emit('join', name);
+    $('#people ul').append('<li>' + name + '</li>');
   })
   server.on('message', function (data) {
     var bot = data.from === "bot" ? ' class="bot"' : '';
@@ -14,6 +17,19 @@
 
     $('#messages').append(msg);
   });
+
+  server.on('join', function (name) {
+    $('#people ul').append('<li>' + name + '</li>');
+  });
+
+  server.on('leave', function (name) {
+    console.log(name);
+    $('#people ul li').each(function() {
+        if($(this).text() === name) {
+            $(this).fadeOut();
+        }
+    })
+  })
 
 
   $(function() {
@@ -30,31 +46,52 @@
       }
 
   });
-</script>
 
-<style type="text/css">
-    #messages {
-        height: 400px;
-        width: 600px;
-        border: 1px solid #ccc;
-        overflow-y: scroll;
-    }
+    </script>
 
-    #chatbox {
-        width: 602px;
-        height: 30px;
-        margin-top: 5px;
-    }
+    <style type="text/css">
+        #people {
+            float: left;
+            height:400px;
+            width: 125px;
+            border: 1px solid #ccc;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
 
-    .bot {
-        color: #ccc;
-    }
-</style>
+        #messages {
+            height: 400px;
+            width: 600px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+        }
 
-<div id="messages">
-</div>
+        #chatbox {
+            width: 602px;
+            height: 30px;
+            margin-top: 5px;
+        }
 
-<form id="chat">
-    <input type="text" id="chatbox" />
-    <input type="submit" />
-</form>
+        .bot {
+            color: #ccc;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="people">
+        <ul></ul>
+    </div>
+
+    <div id="messages">
+    </div>
+
+    <form id="chat">
+        <input type="text" id="chatbox" />
+        <input type="submit" />
+    </form>
+
+</body>
+</html>
+
