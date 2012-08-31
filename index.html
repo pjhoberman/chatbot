@@ -1,0 +1,28 @@
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('messages', function (data) {
+    console.log(data);
+    $('#messages').append('<div>' + data.text + '</div>');
+    //socket.emit('my other event', { my: 'data' });
+  });
+
+
+  $(function() {
+      $('#chat').submit(function() {
+        var message = $('#chatbox').val();
+        socket.emit('messages', {text: message});
+        return false;
+      })
+  });
+</script>
+
+<div id="messages">
+</div>
+
+<form id="chat">
+    <input type="text" id="chatbox" />
+    <input type="submit" />
+</form>
