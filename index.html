@@ -2,22 +2,54 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-  var socket = io.connect('http://localhost');
-  socket.on('messages', function (data) {
-    console.log(data);
-    $('#messages').append('<div>' + data.text + '</div>');
-    //socket.emit('my other event', { my: 'data' });
+  var server = io.connect('http://localhost');
+  var name;
+  server.on('connect', function(data){
+    name = prompt("What's your name?");
+    server.emit('join', name);
+  })
+  server.on('message', function (data) {
+    var bot = data.from === "bot" ? ' class="bot"' : '';
+        msg = '<div' + bot + '>' + data.from + ': ' + data.message + '</div>';
+
+    $('#messages').append(msg);
   });
 
 
   $(function() {
       $('#chat').submit(function() {
         var message = $('#chatbox').val();
-        socket.emit('messages', {text: message});
+        $('#messages').append('<div>' + name + ': ' + message + '</div>');
+        server.emit('message', message);
+        $('#chatbox').val('');
         return false;
-      })
+      });
+
+      window.onbeforeunload = function(e){
+        server.emit('leave');
+      }
+
   });
 </script>
+
+<style type="text/css">
+    #messages {
+        height: 400px;
+        width: 600px;
+        border: 1px solid #ccc;
+        overflow-y: scroll;
+    }
+
+    #chatbox {
+        width: 602px;
+        height: 30px;
+        margin-top: 5px;
+    }
+
+    .bot {
+        color: #ccc;
+    }
+</style>
 
 <div id="messages">
 </div>

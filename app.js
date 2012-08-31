@@ -9,15 +9,28 @@ app.get('/', function (req, res) {
 });
 
 io.sockets.on('connection', function (client) {
-  client.emit('messages', {text: 'Hello, world!'});
 
-  client.on('messages', function (data) {
-    console.log(data);
-    client.broadcast.emit('messages', data);
-  })
 
-  // socket.emit('news', { hello: 'world' });
-  // socket.on('my other event', function (data) {
-  //   console.log(data);
-  // });
+  client.on('join', function (name) {
+    client.set('name', name);
+    client.emit('message', {from: 'bot', message: 'Welcome to the chat bot, ' + name});
+    client.broadcast.emit('message', {from: 'bot', message: name + ' has joined.'});
+  });
+
+  client.on('leave', function () {
+    client.get('name', function(error, name){
+        client.broadcast.emit('message', {from: 'bot', message: name + ' has left.'});
+    });
+  });
+
+  client.on('message', function (message) {
+    // console.log(client);
+    console.log(message);
+    client.get('name', function(error, name){
+        console.log(name);
+        client.broadcast.emit('message', {from: name, message: message});
+    });
+  });
+
+
 });
