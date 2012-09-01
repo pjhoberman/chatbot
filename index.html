@@ -4,7 +4,7 @@
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-  var server = io.connect('http://localhost');
+  var socket = io.connect(window.location.hostname);
   var name;
 
   server.on('connect', function(data){
