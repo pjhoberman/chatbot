@@ -6,11 +6,18 @@
     <script>
   var server = io.connect('http://localhost');
   var name;
+
   server.on('connect', function(data){
     name = prompt("What's your name?");
     server.emit('join', name);
-    $('#people ul').append('<li>' + name + '</li>');
-  })
+  });
+
+  server.on('active_users', function(users){
+    for (i in users) {
+        $('#people ul').append('<li>' + users[i] + '</li>');
+    }
+  });
+
   server.on('message', function (data) {
     var bot = data.from === "bot" ? ' class="bot"' : '';
         msg = '<div' + bot + '>' + data.from + ': ' + data.message + '</div>';
@@ -29,7 +36,7 @@
             $(this).fadeOut();
         }
     })
-  })
+  });
 
 
   $(function() {
