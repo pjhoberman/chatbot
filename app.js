@@ -1,7 +1,7 @@
 var app = require('express')()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server)
-  , redis = require('redis-url').connect(process.env.REDISTOGO_URL);
+  , io = require('socket.io').listen(server);
+  //, redis = require('redis-url').connect(process.env.REDISTOGO_URL);
 
 var port = process.env.PORT || 3000;
 
@@ -22,11 +22,11 @@ io.sockets.on('connection', function (client) {
         active_users.push(name);
         active_users.sort();
         client.emit('active_users', active_users);
-        redis.lrange('messages', 0, -1, function (err, messages) {
-            for (var i in messages) {
-                client.emit('message', JSON.parse(messages[i]));
-            }
-        });
+        // redis.lrange('messages', 0, -1, function (err, messages) {
+        //     for (var i in messages) {
+        //         client.emit('message', JSON.parse(messages[i]));
+        //     }
+        // });
     });
 
     client.on('leave', function () {
@@ -45,7 +45,7 @@ io.sockets.on('connection', function (client) {
         client.get('name', function (error, name) {
             var msg = {from: name, message: message};
             client.broadcast.emit('message', msg);
-            redis.rpush('messages', JSON.stringify(msg));
+            //redis.rpush('messages', JSON.stringify(msg));
         });
     });
 
