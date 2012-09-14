@@ -1,7 +1,7 @@
 var app = require('express')()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server);
-  //, redis = require('redis-url').connect(process.env.REDISTOGO_URL);
+  , io = require('socket.io').listen(server)
+  , fs = require('fs');
 
 var port = process.env.PORT || 3000;
 
@@ -22,11 +22,14 @@ io.sockets.on('connection', function (client) {
         active_users.push(name);
         active_users.sort();
         client.emit('active_users', active_users);
-        // redis.lrange('messages', 0, -1, function (err, messages) {
-        //     for (var i in messages) {
-        //         client.emit('message', JSON.parse(messages[i]));
-        //     }
-        // });
+        fs.readFile('log.js', "utf8", function (err, data) {
+            if (!err) {
+                var msgs = JSON.parse(data);
+                for(var i=0; i<msgs.length; i++){
+                    client.emit('message', msgs[i]);
+                }
+            }
+        });
     });
 
     client.on('leave', function () {
@@ -45,7 +48,35 @@ io.sockets.on('connection', function (client) {
         client.get('name', function (error, name) {
             var msg = {from: name, message: message};
             client.broadcast.emit('message', msg);
-            //redis.rpush('messages', JSON.stringify(msg));
+            fs.readFile('log.js', encoding='utf8', function(err, data){
+                if(err){
+                    if(err.code !== "ENOENT") {
+                        console.log('err');
+                    } else {
+                        fs.writeFile('log.js', '[' + JSON.stringify(msg) + ']', encoding='utf8', function(err){
+                            if(err){
+                                console.log(err);
+                            } else {
+                                console.log('we good');
+                            }
+                        });
+                    }
+                } else {
+                    console.log(data);
+                    console.log(typeof data);
+                    var d = JSON.parse(data);
+                    d.push(msg);
+                    console.log(d);
+
+                    fs.writeFile('log.js', JSON.stringify(d), encoding='utf8', function(err){
+                        if(err){
+                            console.log(err);
+                        } else {
+                            console.log('good');
+                        }
+                    })
+                }
+            });
         });
     });
 
