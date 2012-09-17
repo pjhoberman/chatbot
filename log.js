@@ -1,1 +1,1 @@
-[{"from":"PJ","message":"t"},{"from":"PJ","message":"test"},{"from":"PJ","message":"g"},{"from":"PJ","message":"r"},{"from":"PJ","message":"this is a test"},{"from":"spyde","message":"whatup"},{"from":"PJ","message":"Well this is neat."}]
+[{"from":"PJ","message":"test","time":"2012-9-17 9:53:59"},{"from":"g","message":"r","time":"2012-9-17 9:55:3"},{"from":"h","message":"r","time":"2012-9-17 9:55:23"}]

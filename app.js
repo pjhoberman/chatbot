@@ -26,7 +26,7 @@ io.sockets.on('connection', function (client) {
         active_users.sort();
         client.emit('active_users', active_users);
         fs.readFile('log.js', "utf8", function (err, data) {
-            if (!err) {
+            if (!err && data !== '') {
                 var msgs = JSON.parse(data),
                     i = 0;
                 for (i; i < msgs.length; i++) {
@@ -51,38 +51,43 @@ io.sockets.on('connection', function (client) {
 
     client.on('message', function (message) {
         client.get('name', function (error, name) {
-            var msg = {from: name, message: message};
+            var date = new Date(),
+                timestamp = date.getFullYear() + '-' + (parseInt(date.getMonth(), 10) + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds(),
+                msg = {from: name, message: message, time: timestamp};
+
             client.broadcast.emit('message', msg);
             fs.readFile('log.js', 'utf8', function (err, data) {
                 if (err) {
                     if (err.code !== "ENOENT") {
-                        console.log('err');
+                        console.log('error:');
+                        console.log(err);
+                    } else { // file doesn't exist. create it, log.
+                        createLog(msg);
+                    }
+                } else {
+                    if (data === '') {
+                        createLog(msg);
                     } else {
-                        fs.writeFile('log.js', '[' + JSON.stringify(msg) + ']', 'utf8', function (err) {
+                        var d = JSON.parse(data);
+                        d.push(msg);
+
+                        fs.writeFile('log.js', JSON.stringify(d), 'utf8', function (err) {
                             if (err) {
                                 console.log(err);
-                            } else {
-                                console.log('we good');
                             }
                         });
                     }
-                } else {
-                    console.log(data);
-                    console.log(typeof data);
-                    var d = JSON.parse(data);
-                    d.push(msg);
-                    console.log(d);
-
-                    fs.writeFile('log.js', JSON.stringify(d), 'utf8', function (err) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log('good');
-                        }
-                    });
                 }
             });
         });
     });
 
 });
+
+function createLog(msg) {
+    fs.writeFile('log.js', '[' + JSON.stringify(msg) + ']', 'utf8', function (err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
