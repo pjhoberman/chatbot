@@ -19,9 +19,13 @@
   });
 
   server.on('message', function (data) {
-    var bot = data.from === "bot" ? ' class="bot"' : '';
-        msg = '<div' + bot + ' title="' + data.time + '">' + data.from + ': ' + data.message + '</div>';
+    $('.last').removeClass('last');
+    var bot = data.from === "bot" ? ' bot' : '';
+        msg = '<div class="last' + bot + '" title="' + data.time + '">' + data.from + ': ' + data.message + '</div>';
     $('#messages').append(msg);
+    // this might get annoying if you've scrolled up. maybe cancel on mouseover
+    var messages = document.getElementById("messages");
+    messages.scrollTop = messages.scrollHeight;
   });
 
   server.on('join', function (name) {
@@ -44,6 +48,8 @@
           message = $('#chatbox').val();
         $('#messages').append('<div title="' + timestamp + '">' + name + ': ' + message + '</div>');
         server.emit('message', message);
+        var messages = document.getElementById("messages");
+          messages.scrollTop = messages.scrollHeight;
         $('#chatbox').val('');
         return false;
       });

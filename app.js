@@ -25,10 +25,11 @@ io.sockets.on('connection', function (client) {
         active_users.push(name);
         active_users.sort();
         client.emit('active_users', active_users);
+        // let's limit this
         fs.readFile('log.js', "utf8", function (err, data) {
             if (!err && data !== '') {
                 var msgs = JSON.parse(data),
-                    i = 0;
+                    i = msgs.length - 100;
                 for (i; i < msgs.length; i++) {
                     client.emit('message', msgs[i]);
                 }
